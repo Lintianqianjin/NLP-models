@@ -32,6 +32,8 @@ class ScaledDotProductAttention(nn.Module):
         # decoder中使用
         if mask is not None:
             attn = attn.masked_fill(mask, -np.inf)
+
+
         # softmax
         attn = self.softmax(attn)
         attn = self.dropout(attn)
@@ -93,11 +95,6 @@ class Attention(nn.Module):
         V = self.w_v(v_input)
 
         # return shape: (batch, sentenceLength, d_v)
-        output= self.attention(Q, K, V)
+        output= self.attention(Q, K, V, mask=mask)
 
-        output = output.permute(1, 2, 0, 3).contiguous().view(sz_b, len_q, -1)  # b x lq x (n*dv)
-
-        output = self.dropout(self.fc(output))
-        output = self.layer_norm(output + residual)
-
-        return output, attn
+        return output
